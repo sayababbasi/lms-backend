@@ -3,6 +3,8 @@ from django.contrib.auth import get_user_model
 from .models import Student, Teacher, Staff
 from .services import PasswordService, AuditLogService
 from utils.email_service import EmailService
+from utils.email_service import EmailService
+from django.db import IntegrityError, transaction
 
 User = get_user_model()
 
@@ -42,6 +44,7 @@ class StudentSerializer(serializers.ModelSerializer):
     def get_enrolled_courses(self, obj):
         return [course.title for course in obj.courses.all()]
 
+    @transaction.atomic
     def create(self, validated_data):
         user_data = validated_data.pop('user')
         password = user_data.pop('password', None)
@@ -50,9 +53,12 @@ class StudentSerializer(serializers.ModelSerializer):
             password = PasswordService.generate_secure_password()
             self._temporary_password = password
             
-        user = User.objects.create_user(**user_data, password=password)
-        user.is_student = True
-        user.save()
+        try:
+            user = User.objects.create_user(**user_data, password=password)
+            user.is_student = True
+            user.save()
+        except IntegrityError:
+            raise serializers.ValidationError({"user": "A user with this username or email already exists or required fields are missing."})
         
         PasswordService.record_password_history(user, password)
         AuditLogService.log_action(user=user, action="User Created")
@@ -103,9 +109,12 @@ class TeacherSerializer(serializers.ModelSerializer):
             password = PasswordService.generate_secure_password()
             self._temporary_password = password
             
-        user = User.objects.create_user(**user_data, password=password)
-        user.is_teacher = True
-        user.save()
+        try:
+            user = User.objects.create_user(**user_data, password=password)
+            user.is_teacher = True
+            user.save()
+        except IntegrityError:
+            raise serializers.ValidationError({"user": "A user with this username or email already exists or required fields are missing."})
         
         PasswordService.record_password_history(user, password)
         AuditLogService.log_action(user=user, action="User Created")
