@@ -1,0 +1,8 @@
+# File: backend/apps/assignments/apps.py
+# AppConfig for assignments (Developed by SAYAB)
+
+from django.apps import AppConfig
+
+class AssignmentsConfig(AppConfig):
+    default_auto_field = "django.db.models.BigAutoField"
+    name = "apps.assignments"

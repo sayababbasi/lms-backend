@@ -1,0 +1,15 @@
+# File: backend/requirements.txt
+# Minimal dependencies for the UniversityLMS backend (Developed by SAYAB)
+
+Django>=4.2
+djangorestframework>=3.14
+djangorestframework-simplejwt>=5.2.2
+psycopg2-binary>=2.9.6
+python-dotenv>=1.0.0
+django-cors-headers>=4.0.0
+Pillow>=10.0.0
+dj-database-url>=2.1.0
+google-api-python-client>=2.118.0
+google-auth-oauthlib>=1.2.0
+google-auth>=2.28.0
+google-auth-httplib2>=0.2.0
