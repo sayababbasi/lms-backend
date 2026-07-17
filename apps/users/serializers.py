@@ -1,7 +1,8 @@
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
 from .models import Student, Teacher, Staff
-from .services import PasswordService, AuditLogService, NotificationService
+from .services import PasswordService, AuditLogService
+from utils.email_service import EmailService
 
 User = get_user_model()
 
@@ -55,7 +56,7 @@ class StudentSerializer(serializers.ModelSerializer):
         
         PasswordService.record_password_history(user, password)
         AuditLogService.log_action(user=user, action="User Created")
-        NotificationService.send_welcome_email(user, password)
+        EmailService.send_welcome_email(user, password)
         
         student = Student.objects.create(user=user, **validated_data)
         return student
@@ -108,7 +109,7 @@ class TeacherSerializer(serializers.ModelSerializer):
         
         PasswordService.record_password_history(user, password)
         AuditLogService.log_action(user=user, action="User Created")
-        NotificationService.send_welcome_email(user, password)
+        EmailService.send_welcome_email(user, password)
         
         teacher = Teacher.objects.create(user=user, **validated_data)
         return teacher
@@ -160,7 +161,7 @@ class StaffSerializer(serializers.ModelSerializer):
         
         PasswordService.record_password_history(user, password)
         AuditLogService.log_action(user=user, action="User Created")
-        NotificationService.send_welcome_email(user, password)
+        EmailService.send_welcome_email(user, password)
         
         staff = Staff.objects.create(user=user, **validated_data)
         return staff
