@@ -1,6 +1,7 @@
 from django.db import models
 from django.conf import settings
 from apps.courses.models import Course
+from utils.storages import AssignmentStorage, SubmissionStorage
 
 class Assignment(models.Model):
     ASSIGNMENT_TYPES = [
@@ -70,7 +71,7 @@ class Assignment(models.Model):
 
 class AssignmentAttachment(models.Model):
     assignment = models.ForeignKey(Assignment, on_delete=models.CASCADE, related_name='attachments')
-    file = models.FileField(upload_to='assignments/attachments/')
+    file = models.FileField(upload_to='assignments/attachments/', storage=AssignmentStorage)
     filename = models.CharField(max_length=255, blank=True)
     uploaded_at = models.DateTimeField(auto_now_add=True)
 
@@ -138,7 +139,7 @@ class Submission(models.Model):
 
 class SubmissionFile(models.Model):
     submission = models.ForeignKey(Submission, on_delete=models.CASCADE, related_name='files')
-    file = models.FileField(upload_to='submissions/files/')
+    file = models.FileField(upload_to='submissions/files/', storage=SubmissionStorage)
     filename = models.CharField(max_length=255, blank=True)
     uploaded_at = models.DateTimeField(auto_now_add=True)
 

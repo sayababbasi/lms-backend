@@ -1,5 +1,6 @@
 from django.db import models
 from django.conf import settings
+from utils.storages import CourseThumbnailStorage, DocumentStorage, SubmissionStorage
 
 class Course(models.Model):
     """
@@ -11,7 +12,7 @@ class Course(models.Model):
     title = models.CharField(max_length=255)
     code = models.CharField(max_length=50, unique=True, null=True, blank=True)
     description = models.TextField(blank=True)
-    thumbnail = models.ImageField(upload_to='course_thumbnails/', blank=True, null=True)
+    thumbnail = models.ImageField(upload_to='course_thumbnails/', storage=CourseThumbnailStorage, blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
@@ -60,7 +61,7 @@ class Resource(models.Model):
     """
     lesson = models.ForeignKey(Lesson, on_delete=models.CASCADE, related_name='resources')
     title = models.CharField(max_length=255, default="Resource")
-    file = models.FileField(upload_to='lesson_resources/', blank=True, null=True)
+    file = models.FileField(upload_to='lesson_resources/', storage=DocumentStorage, blank=True, null=True)
     external_url = models.URLField(blank=True, null=True)
 
     def __str__(self):
@@ -78,7 +79,7 @@ class EnrollmentRequest(models.Model):
 
     student = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='enrollment_requests')
     course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='enrollment_requests')
-    payment_proof = models.ImageField(upload_to='payment_proofs/', blank=True, null=True)
+    payment_proof = models.ImageField(upload_to='payment_proofs/', storage=SubmissionStorage, blank=True, null=True)
     transaction_id = models.CharField(max_length=100, blank=True, null=True)
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='PENDING')
     created_at = models.DateTimeField(auto_now_add=True)

@@ -1,6 +1,7 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.utils import timezone
+from utils.storages import ProfileImageStorage
 
 class User(AbstractUser):
     """
@@ -43,7 +44,7 @@ class User(AbstractUser):
     gender = models.CharField(max_length=1, choices=GENDER_CHOICES, blank=True, null=True)
     date_of_birth = models.DateField(blank=True, null=True)
     cnic = models.CharField(max_length=20, blank=True, null=True, verbose_name="CNIC")
-    profile_picture = models.ImageField(upload_to='profile_pics/', blank=True, null=True)
+    profile_picture = models.ImageField(upload_to='profile_pics/', storage=ProfileImageStorage, blank=True, null=True)
 
     def __str__(self):
         return f"{self.username} ({self.email})"
