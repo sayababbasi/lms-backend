@@ -13,6 +13,7 @@ from .models import Student, Teacher, Staff
 from .serializers import UserSerializer, StudentSerializer, TeacherSerializer, StaffSerializer
 from .permissions import IsAdmin, IsTeacher, IsStudent
 from .services import PasswordService, AuthenticationService, AuditLogService, NotificationService
+from utils.email_service import EmailService
 from rest_framework.decorators import action
 from rest_framework.exceptions import AuthenticationFailed
 
@@ -88,6 +89,8 @@ class UserViewSet(viewsets.ModelViewSet):
         user.force_password_change = True
         user.save()
         
+        EmailService.send_welcome_email(user, password)
+        
         PasswordService.record_password_history(user, password)
         AuditLogService.log_action(user=user, admin=request.user, action="Generated Temporary Password", ip_address=request.META.get('REMOTE_ADDR'))
         
@@ -109,6 +112,8 @@ class UserViewSet(viewsets.ModelViewSet):
         user.password_status = 'TEMPORARY' if request.data.get('is_temporary', False) else 'PERMANENT'
         user.force_password_change = request.data.get('force_change', False)
         user.save()
+        
+        EmailService.send_welcome_email(user, password)
         
         PasswordService.record_password_history(user, password)
         AuditLogService.log_action(user=user, admin=request.user, action="Password Reset by Admin", ip_address=request.META.get('REMOTE_ADDR'))
@@ -367,6 +372,7 @@ class RegisterView(APIView):
                 roll_number=roll_num, 
                 department="General"
             )
+            EmailService.send_welcome_email(user)
         
         # Prepare Response
         res_data = {
@@ -416,12 +422,6 @@ class ApproveUserView(APIView):
         user.is_active = True
         user.save()
 
-        # Simulate Email sending
-        print("----------------------------------------------------------------")
-        print(f"EMAIL SENT TO: {user.email}")
-        print(f"SUBJECT: Account Approved")
-        print(f"BODY: Dear {user.username}, your account has been approved.")
-        print(f"You can now login with your credentials.")
-        print("----------------------------------------------------------------")
+        EmailService.send_welcome_email(user)
 
         return Response({"message": f"User {user.username} approved successfully"}, status=status.HTTP_200_OK)

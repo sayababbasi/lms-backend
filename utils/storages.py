@@ -16,9 +16,7 @@ class SupabaseBaseStorage(S3Boto3Storage):
 
 def get_storage(bucket_name):
     if getattr(settings, 'AWS_ACCESS_KEY_ID', None) and getattr(settings, 'AWS_SECRET_ACCESS_KEY', None):
-        class DynamicStorage(SupabaseBaseStorage):
-            bucket_name = bucket_name
-        return DynamicStorage()
+        return type('DynamicStorage', (SupabaseBaseStorage,), {'bucket_name': bucket_name})()
     return DefaultStorage()
 
 def ProfileImageStorage(): return get_storage('profile-images')

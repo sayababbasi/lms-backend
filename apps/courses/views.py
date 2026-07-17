@@ -13,6 +13,7 @@ from .serializers import (
 )
 from apps.users.permissions import IsTeacher, IsAdmin
 from rest_framework.views import APIView
+from utils.email_service import EmailService
 
 class StudentCoursesView(generics.ListAPIView):
     serializer_class = CourseListSerializer
@@ -197,6 +198,7 @@ class EnrollmentRequestViewSet(viewsets.ModelViewSet):
             if hasattr(req.student, 'student_profile'):
                 print(f"DEBUG: Adding student profile {req.student.student_profile.id} to course {req.course.code}")
                 req.course.students.add(req.student.student_profile)
+                EmailService.send_enrollment_notification(req.student, req.course, 'APPROVED')
                 return Response({'status': 'Approved and enrolled'})
             
             print("DEBUG: User has NO student profile")
@@ -215,4 +217,5 @@ class EnrollmentRequestViewSet(viewsets.ModelViewSet):
 
         req.status = 'REJECTED'
         req.save()
+        EmailService.send_enrollment_notification(req.student, req.course, 'REJECTED')
         return Response({'status': 'Rejected'})

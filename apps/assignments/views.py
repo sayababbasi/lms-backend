@@ -31,7 +31,10 @@ class AssignmentViewSet(viewsets.ModelViewSet):
         return [permissions.IsAuthenticated()]
 
     def perform_create(self, serializer):
-        serializer.save(teacher=self.request.user)
+        assignment = serializer.save(teacher=self.request.user)
+        if assignment.course:
+            from utils.email_service import EmailService
+            EmailService.send_assignment_notification(assignment.course, assignment)
 
 class SubmissionViewSet(viewsets.ModelViewSet):
     """
@@ -78,7 +81,9 @@ class GradeViewSet(viewsets.ModelViewSet):
         return [permissions.IsAuthenticated()]
 
     def perform_create(self, serializer):
-        serializer.save(teacher=self.request.user)
+        grade = serializer.save(teacher=self.request.user)
+        from utils.email_service import EmailService
+        EmailService.send_grade_notification(grade.submission)
 
     def update(self, request, *args, **kwargs):
         return super().update(request, *args, **kwargs)
