@@ -5,7 +5,7 @@
 {% block content %}
     <h1>{{ heading|default:"Hello!" }}</h1>
     
-    <p>{{ message }}</p>
+    <p>{{ message|safe }}</p>
     
     {% if cta_text and cta_url %}
     <div class="button-wrap">

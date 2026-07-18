@@ -4,6 +4,7 @@ from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
 from django.utils.html import strip_tags
 from django.conf import settings
+from django.utils import timezone
 import traceback
 
 logger = logging.getLogger(__name__)
@@ -207,17 +208,23 @@ class EmailService:
             EmailService.send_async_email(subject, recipients, "emails/notification.html", context)
 
     @staticmethod
-    def send_contact_form_email(name, email, subject, message):
+    def send_contact_form_email(name, email, subject, message, phone='N/A', ip_address='N/A', user_agent='N/A'):
         email_subject = f"LMS Contact Form Submission: {subject}"
         message_body = (
             f"You received a new message from the LMS contact form:<br><br>"
             f"<strong>Name:</strong> {name}<br>"
             f"<strong>Email:</strong> {email}<br>"
-            f"<strong>Subject:</strong> {subject}<br><br>"
+            f"<strong>Phone:</strong> {phone}<br>"
+            f"<strong>Subject:</strong> {subject}<br>"
+            f"<strong>Submitted Time:</strong> {timezone.now().strftime('%Y-%m-%d %H:%M:%S')}<br>"
+            f"<strong>IP Address:</strong> {ip_address}<br>"
+            f"<strong>User Agent:</strong> {user_agent}<br><br>"
             f"<strong>Message:</strong><br>{message}"
         )
         context = {
             'heading': 'New Contact Form Message',
             'message': message_body,
+            'cta_text': f'Reply to {name}',
+            'cta_url': f'mailto:{email}?subject=Re: {subject}'
         }
         EmailService.send_async_email(email_subject, ["management.revoticai@gmail.com"], "emails/notification.html", context)

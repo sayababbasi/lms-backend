@@ -6,36 +6,35 @@
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="format-detection" content="telephone=no, date=no, address=no, email=no">
-    <title>{% block title %}Notification from University LMS{% endblock %}</title>
+    <title>{% block title %}Revotic LMS Notification{% endblock %}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
         body, table, td, a { -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%; }
         table, td { mso-table-lspace: 0pt; mso-table-rspace: 0pt; }
         img { -ms-interpolation-mode: bicubic; border: 0; height: auto; line-height: 100%; outline: none; text-decoration: none; }
         body { margin: 0; padding: 0; width: 100% !important; background-color: #f8fafc; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
-        .wrapper { width: 100%; table-layout: fixed; padding-top: 40px; padding-bottom: 40px; background-color: #f8fafc; }
-        .main { background-color: #ffffff; margin: 0 auto; width: 100%; max-width: 600px; border-spacing: 0; color: #1e293b; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); }
-        .header { background-color: #0f172a; padding: 30px; text-align: center; }
-        .header img { max-width: 150px; }
-        .content { padding: 40px 30px; }
-        .content h1 { font-size: 24px; font-weight: 700; margin-bottom: 20px; color: #0f172a; }
-        .content p { font-size: 16px; line-height: 24px; color: #475569; margin-bottom: 20px; }
-        .button-wrap { text-align: left; margin: 30px 0; }
-        .button { background-color: #2563eb; color: #ffffff !important; text-decoration: none; padding: 12px 24px; border-radius: 6px; font-weight: 600; display: inline-block; }
-        .footer { background-color: #f1f5f9; padding: 30px; text-align: center; font-size: 14px; color: #64748b; }
-        .footer a { color: #2563eb; text-decoration: none; }
-        .social-links { margin: 20px 0; }
-        .social-links img { width: 24px; height: 24px; margin: 0 5px; }
+        .wrapper { width: 100%; table-layout: fixed; padding-top: 48px; padding-bottom: 48px; background-color: #f8fafc; }
+        .main { background-color: #ffffff; margin: 0 auto; width: 100%; max-width: 580px; border-spacing: 0; color: #334155; border-radius: 20px; overflow: hidden; border: 1px solid #e2e8f0; box-shadow: 0 10px 15px -3px rgba(15, 23, 42, 0.03), 0 4px 6px -4px rgba(15, 23, 42, 0.03); }
+        .header { background: linear-gradient(135deg, #4f46e5 0%, #3730a3 100%); padding: 40px; text-align: center; }
+        .header img { max-width: 140px; }
+        .header-title { color: #ffffff; margin: 0; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 26px; font-weight: 700; letter-spacing: -0.5px; }
+        .header-subtitle { color: #c7d2fe; margin: 8px 0 0 0; font-size: 14px; font-weight: 500; }
+        .content { padding: 48px 40px; background-color: #ffffff; }
+        .content h1 { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 24px; font-weight: 700; margin-top: 0; margin-bottom: 24px; color: #0f172a; letter-spacing: -0.5px; }
+        .content p { font-size: 15px; line-height: 26px; color: #475569; margin-top: 0; margin-bottom: 24px; }
+        .button-wrap { text-align: left; margin: 36px 0; }
+        .button { background-color: #4f46e5; color: #ffffff !important; text-decoration: none; padding: 14px 28px; border-radius: 10px; font-weight: 600; font-size: 15px; display: inline-block; box-shadow: 0 4px 6px -1px rgba(79, 70, 229, 0.2), 0 2px 4px -2px rgba(79, 70, 229, 0.2); transition: all 0.2s ease; }
+        .footer { background-color: #f8fafc; padding: 40px; text-align: center; font-size: 13px; color: #64748b; border-top: 1px solid #f1f5f9; }
+        .footer a { color: #4f46e5; text-decoration: none; font-weight: 500; }
+        .social-links { margin-bottom: 24px; }
+        .social-links a { display: inline-block; margin: 0 10px; color: #94a3b8; font-size: 14px; text-decoration: none; font-weight: 600; }
+        .divider { height: 1px; background-color: #f1f5f9; margin: 32px 0; }
         
         @media screen and (max-width: 600px) {
-            .main { border-radius: 0; }
+            .main { border-radius: 0; border: none; }
             .wrapper { padding-top: 0; padding-bottom: 0; }
-        }
-        @media (prefers-color-scheme: dark) {
-            body, .wrapper { background-color: #0f172a !important; }
-            .main { background-color: #1e293b !important; }
-            .content h1 { color: #f8fafc !important; }
-            .content p { color: #cbd5e1 !important; }
-            .footer { background-color: #0f172a !important; color: #94a3b8 !important; border-top: 1px solid #334155; }
+            .content { padding: 32px 24px; }
+            .footer { padding: 32px 24px; }
         }
     </style>
 </head>
@@ -45,8 +44,8 @@
             <!-- Header -->
             <tr>
                 <td class="header">
-                    <!-- Placeholder logo if none provided -->
-                    <h2 style="color: #ffffff; margin: 0; font-size: 28px; font-weight: bold; letter-spacing: -0.5px;">Revotic LMS</h2>
+                    <h2 class="header-title">Revotic LMS</h2>
+                    <p class="header-subtitle">Your Learning. Unified.</p>
                 </td>
             </tr>
             <!-- Content -->
@@ -55,22 +54,29 @@
                     {% block content %}
                     {% endblock %}
                     
-                    <p style="margin-top: 40px; font-size: 15px;">
-                        Thanks,<br>
-                        <strong>The University LMS Team</strong>
+                    <div class="divider"></div>
+                    
+                    <p style="margin: 0; font-size: 14px; color: #64748b;">
+                        Warm regards,<br>
+                        <strong style="color: #334155;">The Revotic LMS Team</strong>
                     </p>
                 </td>
             </tr>
             <!-- Footer -->
             <tr>
                 <td class="footer">
-                    <p style="margin-bottom: 10px;">
-                        <strong>Need Help?</strong><br>
-                        Contact us at <a href="mailto:support@revoticai.com">support@revoticai.com</a>
+                    <div class="social-links">
+                        <a href="https://lms.revoticai.com" target="_blank">Portal</a>
+                        <a href="https://revoticai.com" target="_blank">Website</a>
+                        <a href="mailto:support@revoticai.com">Support</a>
+                    </div>
+                    <p style="margin: 0 0 12px 0; line-height: 20px;">
+                        <strong>Need support?</strong> We're here for you. Drop us a line at <a href="mailto:support@revoticai.com">support@revoticai.com</a>
                     </p>
-                    <p style="font-size: 12px; margin-top: 20px;">
-                        &copy; {{ current_year|default:"2026" }} Revotic AI Pvt Ltd. All rights reserved.<br>
-                        You are receiving this email because of your account on University LMS.
+                    <p style="font-size: 11px; margin: 0; line-height: 18px; color: #94a3b8;">
+                        &copy; {{ current_year|default:"2026" }} Revotic AI Pvt. Ltd. All rights reserved.<br>
+                        Spring Valley, Banigala, Islamabad, Pakistan<br>
+                        This is an automated operational email from your Revotic LMS account.
                     </p>
                 </td>
             </tr>

@@ -546,14 +546,19 @@ class ContactMessageView(APIView):
     def post(self, request):
         name = request.data.get('name')
         email = request.data.get('email')
+        phone = request.data.get('phone', 'N/A')
         subject = request.data.get('subject')
         message = request.data.get('message')
 
         if not name or not email or not subject or not message:
             return Response({'error': 'All fields are required.'}, status=status.HTTP_400_BAD_REQUEST)
 
+        # Retrieve client IP and user agent
+        ip_address = request.META.get('HTTP_X_FORWARDED_FOR', request.META.get('REMOTE_ADDR', 'N/A'))
+        user_agent = request.META.get('HTTP_USER_AGENT', 'N/A')
+
         try:
-            EmailService.send_contact_form_email(name, email, subject, message)
+            EmailService.send_contact_form_email(name, email, subject, message, phone=phone, ip_address=ip_address, user_agent=user_agent)
             return Response({'message': 'Message sent successfully.'}, status=status.HTTP_200_OK)
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
