@@ -24,13 +24,16 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
     def validate(self, attrs):
         username = attrs.get('username')
         user = None
+        user_exists = False  # Track if the username/email exists at all
         try:
             # Django authenticate accepts either username or email depending on backend, 
             # simplejwt typically uses the USERNAME_FIELD
             user = User.objects.get(username=username)
+            user_exists = True
         except User.DoesNotExist:
             try:
                 user = User.objects.get(email=username)
+                user_exists = True
             except User.DoesNotExist:
                 pass
                 
@@ -49,6 +52,17 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
             if user:
                 AuthenticationService.handle_successful_login(user)
                 
+            # Determine the primary role with correct priority:
+            # Admin (is_staff/is_superuser) takes precedence over teacher/student
+            if self.user.is_superuser or self.user.is_staff:
+                role = 'admin'
+            elif self.user.is_teacher:
+                role = 'teacher'
+            elif self.user.is_student:
+                role = 'student'
+            else:
+                role = 'user'
+
             data['user'] = {
                 'id': self.user.id,
                 'username': self.user.username,
@@ -56,6 +70,8 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
                 'is_student': self.user.is_student,
                 'is_teacher': self.user.is_teacher,
                 'is_staff': self.user.is_staff,
+                'is_superuser': self.user.is_superuser,
+                'role': role,
                 'force_password_change': self.user.force_password_change,
                 'password_status': self.user.password_status
             }
@@ -63,7 +79,18 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
         except Exception as e:
             if user:
                 AuthenticationService.handle_failed_login(user)
-            raise e
+            # Raise specific error codes so the frontend can show precise messages
+            if not user_exists:
+                raise AuthenticationFailed({
+                    'detail': 'No account found with that username or email.',
+                    'code': 'user_not_found'
+                })
+            else:
+                raise AuthenticationFailed({
+                    'detail': 'Incorrect password. Please try again.',
+                    'code': 'wrong_password'
+                })
+
 
 class CustomTokenObtainPairView(TokenObtainPairView):
     serializer_class = CustomTokenObtainPairSerializer
