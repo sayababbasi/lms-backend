@@ -1,116 +1,3 @@
-# # backend/lms_crm/settings.py
-# # Django settings including database, installed apps, middleware + (Developed by SAYAB)
-
-# import os
-# from pathlib import Path
-
-# # Base directory
-# BASE_DIR = Path(__file__).resolve().parent.parent
-
-# # Security key (use a real secret key for production)
-# SECRET_KEY = 'django-insecure-replace-me-with-secure-key'
-
-# # Debug mode
-# DEBUG = True
-
-# ALLOWED_HOSTS = []
-
-# # Installed apps
-# INSTALLED_APPS = [
-#     'django.contrib.admin',
-#     'django.contrib.auth',
-#     'django.contrib.contenttypes',
-#     'django.contrib.sessions',
-#     'django.contrib.messages',
-#     'django.contrib.staticfiles',
-
-#     # Third-party apps
-#     'rest_framework',
-
-#     # Local apps
-#     'apps.users',
-#     'apps.courses',
-#     'apps.assignments',
-#     'apps.exams',
-#     'apps.results',
-#     'apps.finance',
-#     'apps.notifications',
-#     'apps.attendance',
-#     'apps.timetable',
-#     'apps.library',
-# ]
-
-# # Middleware
-# MIDDLEWARE = [
-#     'django.middleware.security.SecurityMiddleware',
-#     'django.contrib.sessions.middleware.SessionMiddleware',
-#     'django.middleware.common.CommonMiddleware',
-#     'django.middleware.csrf.CsrfViewMiddleware',
-#     'django.contrib.auth.middleware.AuthenticationMiddleware',
-#     'django.contrib.messages.middleware.MessageMiddleware',
-#     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-# ]
-
-# ROOT_URLCONF = 'lms_crm.urls'
-
-# # Templates
-# TEMPLATES = [
-#     {
-#         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-#         'DIRS': [BASE_DIR / 'templates'],
-#         'APP_DIRS': True,
-#         'OPTIONS': {
-#             'context_processors': [
-#                 'django.template.context_processors.debug',
-#                 'django.template.context_processors.request',
-#                 'django.contrib.auth.context_processors.auth',
-#                 'django.contrib.messages.context_processors.messages',
-#             ],
-#         },
-#     },
-# ]
-
-# WSGI_APPLICATION = 'lms_crm.wsgi.application'
-# ASGI_APPLICATION = 'lms_crm.asgi.application'
-
-# # Database (SQLite for dev)
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': BASE_DIR / 'db.sqlite3',
-#     }
-# }
-
-# # Password validation
-# AUTH_PASSWORD_VALIDATORS = [
-#     {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',},
-#     {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',},
-#     {'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',},
-#     {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',},
-# ]
-
-
-# AUTH_USER_MODEL = "users.User"  # app_label.ModelName
-
-# # Internationalization
-# LANGUAGE_CODE = 'en-us'
-# TIME_ZONE = 'UTC'
-# USE_I18N = True
-# USE_TZ = True
-
-# # Static and media
-# STATIC_URL = '/static/'
-# STATICFILES_DIRS = [BASE_DIR / 'static']
-# MEDIA_URL = '/media/'
-# MEDIA_ROOT = BASE_DIR / 'media'
-
-# # Default primary key
-# DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
-
-# File: backend/lms_crm/settings.py
-# Django settings for Revotic LMS (Developed by SAYAB)
-
 import os
 from pathlib import Path
 from datetime import timedelta
@@ -153,7 +40,6 @@ INSTALLED_APPS = [
     "django_filters",
     "storages",
     # Local apps
-
     "apps.users",
     "apps.courses",
     "apps.assignments",
@@ -164,7 +50,6 @@ INSTALLED_APPS = [
     "apps.attendance",
     "apps.timetable",
     "apps.library",
-   
 ]
 
 MIDDLEWARE = [
@@ -175,7 +60,6 @@ MIDDLEWARE = [
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
-    # "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
 ROOT_URLCONF = "lms_crm.urls"
@@ -233,7 +117,7 @@ AWS_S3_REGION_NAME = os.getenv('AWS_S3_REGION_NAME', 'us-east-1')
 AWS_STORAGE_BUCKET_NAME = os.getenv('AWS_STORAGE_BUCKET_NAME', 'public-assets')
 AWS_S3_ADDRESSING_STYLE = "path"
 AWS_S3_FILE_OVERWRITE = False
-AWS_DEFAULT_ACL = None # Supabase handles permissions
+AWS_DEFAULT_ACL = None
 
 # If credentials exist, use S3 for default storage, else local media
 if AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY:
@@ -269,13 +153,16 @@ SIMPLE_JWT = {
 }
 
 # Email Settings
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
-EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', 'contact.revoticai@gmail.com')
-EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', 'sajb mrak anwu dkow')
-DEFAULT_FROM_EMAIL = EMAIL_HOST_USER or 'lms@university.edu'
+EMAIL_BACKEND = os.getenv('EMAIL_BACKEND', 'django.core.mail.backends.smtp.EmailBackend')
+EMAIL_HOST = os.getenv('EMAIL_HOST', 'smtp-relay.brevo.com')
+EMAIL_PORT = int(os.getenv('EMAIL_PORT', '587'))
+EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS', 'True').lower() == 'true'
+EMAIL_USE_SSL = os.getenv('EMAIL_USE_SSL', 'False').lower() == 'true'
+EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', 'b26efb001@smtp-brevo.com')
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', '')
+DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', 'Revotic AI Pvt. Ltd. <contact@revoticai.com>')
+SERVER_EMAIL = os.getenv('SERVER_EMAIL', 'contact@revoticai.com')
+REPLY_TO_EMAIL = os.getenv('REPLY_TO_EMAIL', 'contact@revoticai.com')
 
 # Celery Configuration
 CELERY_BROKER_URL = os.getenv("CELERY_BROKER_URL", "redis://localhost:6379/0")
