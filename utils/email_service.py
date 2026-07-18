@@ -3,42 +3,42 @@ from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
 from django.utils.html import strip_tags
 from django.conf import settings
+import logging
 
-class EmailThread(threading.Thread):
-    def __init__(self, subject, html_content, recipient_list):
-        self.subject = subject
-        self.html_content = html_content
-        self.recipient_list = recipient_list
-        threading.Thread.__init__(self)
-
-    def run(self):
-        text_content = strip_tags(self.html_content)
-        msg = EmailMultiAlternatives(
-            subject=self.subject,
-            body=text_content,
-            from_email=settings.DEFAULT_FROM_EMAIL,
-            to=self.recipient_list
-        )
-        msg.attach_alternative(self.html_content, "text/html")
-        try:
-            msg.send()
-        except Exception as e:
-            print(f"Error sending email to {self.recipient_list}: {str(e)}")
+logger = logging.getLogger(__name__)
 
 class EmailService:
     """
-    Centralized service to dispatch emails asynchronously.
+    Centralized service to dispatch emails synchronously.
     Using simple HTML layouts inside the functions for portability.
     """
     
     @staticmethod
     def _send(subject, html_content, recipients):
-        if not getattr(settings, 'EMAIL_HOST_USER', None):
+        email_user = getattr(settings, 'EMAIL_HOST_USER', None)
+        if not email_user:
             print(f"EMAIL_HOST_USER not set! Mocking email to {recipients}: {subject}")
+            logger.warning(f"EMAIL_HOST_USER not set! Mocking email to {recipients}: {subject}")
             return
+            
         if isinstance(recipients, str):
             recipients = [recipients]
-        EmailThread(subject, html_content, recipients).start()
+            
+        text_content = strip_tags(html_content)
+        msg = EmailMultiAlternatives(
+            subject=subject,
+            body=text_content,
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            to=recipients
+        )
+        msg.attach_alternative(html_content, "text/html")
+        try:
+            msg.send()
+            print(f"Successfully sent email to {recipients}")
+            logger.info(f"Successfully sent email to {recipients}")
+        except Exception as e:
+            print(f"Error sending email to {recipients}: {str(e)}")
+            logger.error(f"Error sending email to {recipients}: {str(e)}")
 
     @staticmethod
     def _base_html(title, body):

@@ -79,30 +79,19 @@ class YouTubeUploadView(APIView):
                 temp_file.write(chunk)
             temp_file.close()
 
-            # Upload to YouTube
-            video_id = YouTubeService.upload_video(temp_file.name, title, description)
-            embed_url = f"https://www.youtube.com/embed/{video_id}"
-
-            # Update Lesson
-            if lesson:
-                lesson.youtube_video_id = video_id
-                lesson.youtube_embed_url = embed_url
-                lesson.upload_status = 'completed'
-                from django.utils import timezone
-                lesson.uploaded_at = timezone.now()
-                lesson.save()
+            # Dispatch Celery Task
+            from .tasks import process_youtube_upload
+            process_youtube_upload.delay(temp_file.name, title, description, lesson_id)
 
             return Response({
-                'message': 'Upload successful',
-                'video_id': video_id,
-                'embed_url': embed_url
-            }, status=status.HTTP_200_OK)
+                'message': 'Upload processing started in the background.',
+                'status': 'processing'
+            }, status=status.HTTP_202_ACCEPTED)
 
         except Exception as e:
             if lesson:
                 lesson.upload_status = 'failed'
                 lesson.save()
-            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        finally:
             if os.path.exists(temp_file.name):
                 os.remove(temp_file.name)
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

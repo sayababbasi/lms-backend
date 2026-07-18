@@ -334,30 +334,11 @@ class RegisterView(APIView):
         user.first_name = data.get('first_name', '')
         user.last_name = data.get('last_name', '')
 
-        # Handle Composite Roles for Demo
-        if role == 'demo_full':
-            user.is_staff = True # Admin
-            user.is_teacher = True
-            user.is_student = True
-            user.save()
-            # Create all profiles
-            Teacher.objects.create(user=user, department="General")
-            
-            import random
-            roll_num = f"TEMP-{random.randint(1000, 9999)}"
-            Student.objects.create(user=user, roll_number=roll_num, department="General")
+        # Handle Roles
+        if role not in ['student', 'teacher']:
+            return Response({"error": "Invalid role specified"}, status=status.HTTP_400_BAD_REQUEST)
 
-        elif role == 'demo_academic':
-            user.is_teacher = True
-            user.is_student = True
-            user.save()
-            Teacher.objects.create(user=user, department="General")
-            
-            import random
-            roll_num = f"TEMP-{random.randint(1000, 9999)}"
-            Student.objects.create(user=user, roll_number=roll_num, department="General")
-
-        elif role == 'teacher':
+        if role == 'teacher':
             user.is_teacher = True
             user.save()
             Teacher.objects.create(user=user, department="General") # Placeholder dept
@@ -425,3 +406,102 @@ class ApproveUserView(APIView):
         EmailService.send_welcome_email(user)
 
         return Response({"message": f"User {user.username} approved successfully"}, status=status.HTTP_200_OK)
+
+from django.contrib.auth.tokens import PasswordResetTokenGenerator
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.utils.encoding import force_bytes, force_str
+
+class ForgotPasswordView(APIView):
+    """
+    Public endpoint to request a password reset email.
+    """
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        email = request.data.get('email')
+        if not email:
+            return Response({"error": "Email is required"}, status=status.HTTP_400_BAD_REQUEST)
+            
+        try:
+            user = User.objects.get(email=email)
+            token = PasswordResetTokenGenerator().make_token(user)
+            uid = urlsafe_base64_encode(force_bytes(user.pk))
+            
+            # Assuming frontend will handle /reset-password/:uid/:token
+            # Or use a generic lms URL
+            reset_link = f"https://lms.revoticai.com/reset-password/{uid}/{token}"
+            
+            EmailService.send_password_reset(user, reset_link)
+            
+            # Record audit log
+            AuditLogService.log_action(user=user, admin=None, action="Requested Password Reset", ip_address=request.META.get('REMOTE_ADDR'))
+            
+            return Response({"message": "If an account exists with that email, a reset link has been sent."})
+        except User.DoesNotExist:
+            # Still return success to prevent email enumeration
+            return Response({"message": "If an account exists with that email, a reset link has been sent."})
+
+class ResetPasswordConfirmView(APIView):
+    """
+    Public endpoint to confirm password reset using uid and token.
+    """
+    permission_classes = [AllowAny]
+
+    def post(self, request, uidb64, token):
+        password = request.data.get('password')
+        if not password:
+            return Response({"error": "New password is required"}, status=status.HTTP_400_BAD_REQUEST)
+            
+        try:
+            uid = force_str(urlsafe_base64_decode(uidb64))
+            user = User.objects.get(pk=uid)
+        except (TypeError, ValueError, OverflowError, User.DoesNotExist):
+            user = None
+            
+        if user is not None and PasswordResetTokenGenerator().check_token(user, token):
+            is_valid, msg = PasswordService.validate_password_strength(password, user)
+            if not is_valid:
+                return Response({'error': msg}, status=status.HTTP_400_BAD_REQUEST)
+                
+            user.set_password(password)
+            user.password_status = 'PERMANENT'
+            user.force_password_change = False
+            user.save()
+            
+            PasswordService.record_password_history(user, password)
+            AuditLogService.log_action(user=user, admin=None, action="Completed Password Reset via Token", ip_address=request.META.get('REMOTE_ADDR'))
+            
+            return Response({"message": "Password has been reset successfully."})
+        else:
+            return Response({"error": "Invalid or expired reset token."}, status=status.HTTP_400_BAD_REQUEST)
+
+class ChangePasswordView(APIView):
+    """
+    Authenticated endpoint for a user to change their own password.
+    """
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request):
+        user = request.user
+        old_password = request.data.get('old_password')
+        new_password = request.data.get('new_password')
+        
+        if not old_password or not new_password:
+            return Response({"error": "Both old and new passwords are required"}, status=status.HTTP_400_BAD_REQUEST)
+            
+        if not user.check_password(old_password):
+            return Response({"error": "Incorrect old password"}, status=status.HTTP_400_BAD_REQUEST)
+            
+        is_valid, msg = PasswordService.validate_password_strength(new_password, user)
+        if not is_valid:
+            return Response({'error': msg}, status=status.HTTP_400_BAD_REQUEST)
+            
+        user.set_password(new_password)
+        user.password_status = 'PERMANENT'
+        user.force_password_change = False
+        user.save()
+        
+        PasswordService.record_password_history(user, new_password)
+        AuditLogService.log_action(user=user, admin=None, action="Changed Own Password", ip_address=request.META.get('REMOTE_ADDR'))
+        
+        return Response({"message": "Password changed successfully."})

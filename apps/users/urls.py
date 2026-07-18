@@ -3,7 +3,8 @@ from rest_framework.routers import DefaultRouter
 from .views import (
     CustomTokenObtainPairView, UserViewSet, StudentViewSet, TeacherViewSet, StaffViewSet, 
     MeView, DashboardStatsView, StudentStatsView,
-    RegisterView, PendingUsersView, ApproveUserView
+    RegisterView, PendingUsersView, ApproveUserView,
+    ForgotPasswordView, ResetPasswordConfirmView, ChangePasswordView
 )
 from rest_framework_simplejwt.views import TokenRefreshView
 
@@ -19,6 +20,11 @@ urlpatterns = [
     path('login/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('register/', RegisterView.as_view(), name='register'), # New
     path('me/', MeView.as_view(), name='user_me'),
+    
+    # Password Management Endpoints
+    path('password/forgot/', ForgotPasswordView.as_view(), name='password_forgot'),
+    path('password/reset/<str:uidb64>/<str:token>/', ResetPasswordConfirmView.as_view(), name='password_reset_confirm'),
+    path('password/change/', ChangePasswordView.as_view(), name='password_change'),
     
     # Dashboard Stats
     path('dashboard/stats/', DashboardStatsView.as_view(), name='dashboard_stats'),

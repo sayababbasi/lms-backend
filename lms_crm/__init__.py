@@ -1,2 +1,3 @@
-# backend/lms_crm/__init__.py
-# Marks this folder as a Python package + (Developed by SAYAB)
+from .celery import app as celery_app
+
+__all__ = ('celery_app',)
