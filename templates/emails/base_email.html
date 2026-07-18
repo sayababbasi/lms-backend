@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
+<head>
+    <meta charset="utf-8">
+    <meta name="x-apple-disable-message-reformatting">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="format-detection" content="telephone=no, date=no, address=no, email=no">
+    <title>{% block title %}Notification from University LMS{% endblock %}</title>
+    <style>
+        body, table, td, a { -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%; }
+        table, td { mso-table-lspace: 0pt; mso-table-rspace: 0pt; }
+        img { -ms-interpolation-mode: bicubic; border: 0; height: auto; line-height: 100%; outline: none; text-decoration: none; }
+        body { margin: 0; padding: 0; width: 100% !important; background-color: #f8fafc; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
+        .wrapper { width: 100%; table-layout: fixed; padding-top: 40px; padding-bottom: 40px; background-color: #f8fafc; }
+        .main { background-color: #ffffff; margin: 0 auto; width: 100%; max-width: 600px; border-spacing: 0; color: #1e293b; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); }
+        .header { background-color: #0f172a; padding: 30px; text-align: center; }
+        .header img { max-width: 150px; }
+        .content { padding: 40px 30px; }
+        .content h1 { font-size: 24px; font-weight: 700; margin-bottom: 20px; color: #0f172a; }
+        .content p { font-size: 16px; line-height: 24px; color: #475569; margin-bottom: 20px; }
+        .button-wrap { text-align: left; margin: 30px 0; }
+        .button { background-color: #2563eb; color: #ffffff !important; text-decoration: none; padding: 12px 24px; border-radius: 6px; font-weight: 600; display: inline-block; }
+        .footer { background-color: #f1f5f9; padding: 30px; text-align: center; font-size: 14px; color: #64748b; }
+        .footer a { color: #2563eb; text-decoration: none; }
+        .social-links { margin: 20px 0; }
+        .social-links img { width: 24px; height: 24px; margin: 0 5px; }
+        
+        @media screen and (max-width: 600px) {
+            .main { border-radius: 0; }
+            .wrapper { padding-top: 0; padding-bottom: 0; }
+        }
+        @media (prefers-color-scheme: dark) {
+            body, .wrapper { background-color: #0f172a !important; }
+            .main { background-color: #1e293b !important; }
+            .content h1 { color: #f8fafc !important; }
+            .content p { color: #cbd5e1 !important; }
+            .footer { background-color: #0f172a !important; color: #94a3b8 !important; border-top: 1px solid #334155; }
+        }
+    </style>
+</head>
+<body>
+    <div class="wrapper">
+        <table class="main" role="presentation">
+            <!-- Header -->
+            <tr>
+                <td class="header">
+                    <!-- Placeholder logo if none provided -->
+                    <h2 style="color: #ffffff; margin: 0; font-size: 28px; font-weight: bold; letter-spacing: -0.5px;">Revotic LMS</h2>
+                </td>
+            </tr>
+            <!-- Content -->
+            <tr>
+                <td class="content">
+                    {% block content %}
+                    {% endblock %}
+                    
+                    <p style="margin-top: 40px; font-size: 15px;">
+                        Thanks,<br>
+                        <strong>The University LMS Team</strong>
+                    </p>
+                </td>
+            </tr>
+            <!-- Footer -->
+            <tr>
+                <td class="footer">
+                    <p style="margin-bottom: 10px;">
+                        <strong>Need Help?</strong><br>
+                        Contact us at <a href="mailto:support@revoticai.com">support@revoticai.com</a>
+                    </p>
+                    <p style="font-size: 12px; margin-top: 20px;">
+                        &copy; {{ current_year|default:"2026" }} Revotic AI Pvt Ltd. All rights reserved.<br>
+                        You are receiving this email because of your account on University LMS.
+                    </p>
+                </td>
+            </tr>
+        </table>
+    </div>
+</body>
+</html>

@@ -116,6 +116,8 @@ class MessageViewSet(viewsets.ModelViewSet):
         
         Message.objects.filter(sender_id=sender_id, recipient=request.user, is_read=False).update(is_read=True)
         return Response({'status': 'conversation marked as read'})
+    @action(detail=False, methods=['post'])
+    def send_email(self, request):
         """
         API endpoint to send an actual email.
         """
@@ -127,13 +129,71 @@ class MessageViewSet(viewsets.ModelViewSet):
             return Response({'error': 'Missing email, subject, or message'}, status=status.HTTP_400_BAD_REQUEST)
 
         try:
-            send_mail(
-                subject,
-                message_body,
-                settings.DEFAULT_FROM_EMAIL,
-                [recipient_email],
-                fail_silently=False,
+            from utils.email_service import EmailService
+            EmailService.send_async_email(
+                subject=subject,
+                recipient_list=[recipient_email],
+                template_name="emails/notification.html",
+                context={'message': message_body, 'heading': subject}
             )
-            return Response({'status': 'Email sent successfully'})
+            return Response({'status': 'Email queued successfully'})
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+from .models import EmailLog
+from rest_framework import serializers
+
+class EmailLogSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = EmailLog
+        fields = '__all__'
+
+class EmailLogViewSet(viewsets.ReadOnlyModelViewSet):
+    """
+    API for Admin Dashboard to view and manage emails.
+    """
+    queryset = EmailLog.objects.all()
+    serializer_class = EmailLogSerializer
+    permission_classes = [permissions.IsAdminUser]
+
+    @action(detail=False, methods=['get'])
+    def statistics(self, request):
+        total = EmailLog.objects.count()
+        sent = EmailLog.objects.filter(status='SENT').count()
+        failed = EmailLog.objects.filter(status='FAILED').count()
+        pending = EmailLog.objects.filter(status='PENDING').count()
+        
+        return Response({
+            'total': total,
+            'sent': sent,
+            'failed': failed,
+            'pending': pending,
+            'success_rate': round((sent / total * 100), 2) if total > 0 else 0
+        })
+
+    @action(detail=True, methods=['post'])
+    def retry(self, request, pk=None):
+        email = self.get_object()
+        if email.status != 'FAILED':
+            return Response({'error': 'Can only retry failed emails'}, status=status.HTTP_400_BAD_REQUEST)
+            
+        from utils.email_service import EmailService
+        
+        success = EmailService.send_template_email(
+            subject=email.subject,
+            recipient_list=[email.recipient],
+            template_name=email.template_name,
+            context=email.context_data,
+            log_email=False 
+        )
+        
+        if success:
+            email.status = 'SENT'
+            from django.utils import timezone
+            email.sent_at = timezone.now()
+            email.error_message = ''
+        else:
+            email.retry_count += 1
+            
+        email.save()
+        return Response({'success': success, 'status': email.status})

@@ -1,0 +1,22 @@
+{% extends "emails/base_email.html" %}
+
+{% block title %}{{ subject|default:"Authentication Code" }}{% endblock %}
+
+{% block content %}
+    <h1 style="text-align: center;">{{ heading|default:"Verification Code" }}</h1>
+    
+    <p style="text-align: center;">{{ message }}</p>
+    
+    {% if otp_code %}
+    <div style="background-color: #f1f5f9; border-radius: 8px; padding: 20px; text-align: center; margin: 30px 0;">
+        <span style="font-family: monospace; font-size: 32px; font-weight: bold; letter-spacing: 5px; color: #0f172a;">{{ otp_code }}</span>
+    </div>
+    <p style="text-align: center; font-size: 14px; color: #64748b;">This code will expire in 10 minutes. Do not share it with anyone.</p>
+    {% endif %}
+    
+    {% if cta_text and cta_url %}
+    <div class="button-wrap" style="text-align: center;">
+        <a href="{{ cta_url }}" class="button">{{ cta_text }}</a>
+    </div>
+    {% endif %}
+{% endblock %}

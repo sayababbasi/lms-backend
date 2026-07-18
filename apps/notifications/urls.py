@@ -13,10 +13,11 @@
 
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from .views import NotificationViewSet, MessageViewSet
+from .views import NotificationViewSet, MessageViewSet, EmailLogViewSet
 
 router = DefaultRouter()
 router.register(r"logs", NotificationViewSet) # Changed from notifications to logs for clarity
 router.register(r"messages", MessageViewSet)
+router.register(r"email-logs", EmailLogViewSet, basename="email-logs")
 
 urlpatterns = [path("", include(router.urls))]

@@ -103,3 +103,47 @@ class Message(models.Model):
 
     def __str__(self):
         return f"From {self.sender} to {self.recipient} at {self.created_at}"
+
+class EmailLog(models.Model):
+    """
+    Log of all emails sent by the system for auditing and debugging.
+    """
+    STATUS_CHOICES = [
+        ('PENDING', 'Pending'),
+        ('SENT', 'Sent'),
+        ('FAILED', 'Failed'),
+    ]
+
+    recipient = models.EmailField()
+    subject = models.CharField(max_length=255)
+    template_name = models.CharField(max_length=100, blank=True, null=True)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='PENDING')
+    error_message = models.TextField(blank=True, null=True)
+    retry_count = models.IntegerField(default=0)
+    created_at = models.DateTimeField(auto_now_add=True)
+    sent_at = models.DateTimeField(null=True, blank=True)
+    context_data = models.JSONField(null=True, blank=True) # Useful for retries
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"[{self.status}] {self.subject} to {self.recipient}"
+
+
+class NotificationPreference(models.Model):
+    """
+    User preferences for receiving different types of emails.
+    """
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='notification_preferences')
+    
+    # Email Preferences
+    receive_marketing_emails = models.BooleanField(default=False)
+    receive_course_emails = models.BooleanField(default=True)
+    receive_assignment_emails = models.BooleanField(default=True)
+    receive_exam_emails = models.BooleanField(default=True)
+    receive_announcements = models.BooleanField(default=True)
+    receive_system_emails = models.BooleanField(default=True) # usually forced true anyway, but can be managed
+
+    def __str__(self):
+        return f"Preferences for {self.user.username}"

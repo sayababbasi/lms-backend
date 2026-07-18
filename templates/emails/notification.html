@@ -1,0 +1,15 @@
+{% extends "emails/base_email.html" %}
+
+{% block title %}{{ subject|default:"Notification" }}{% endblock %}
+
+{% block content %}
+    <h1>{{ heading|default:"Hello!" }}</h1>
+    
+    <p>{{ message }}</p>
+    
+    {% if cta_text and cta_url %}
+    <div class="button-wrap">
+        <a href="{{ cta_url }}" class="button">{{ cta_text }}</a>
+    </div>
+    {% endif %}
+{% endblock %}
