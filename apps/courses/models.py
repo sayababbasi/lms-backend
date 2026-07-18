@@ -13,6 +13,20 @@ class Course(models.Model):
     code = models.CharField(max_length=50, unique=True, null=True, blank=True)
     description = models.TextField(blank=True)
     thumbnail = models.ImageField(upload_to='course_thumbnails/', storage=CourseThumbnailStorage, blank=True, null=True)
+    
+    # Advanced LMS Fields
+    credit_hours = models.PositiveIntegerField(default=3)
+    passing_percentage = models.PositiveIntegerField(default=50)
+    STATUS_CHOICES = [
+        ('DRAFT', 'Draft'),
+        ('PUBLISHED', 'Published'),
+        ('ARCHIVED', 'Archived'),
+    ]
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='DRAFT')
+    semester = models.CharField(max_length=50, blank=True, null=True, help_text="e.g., Fall 2026")
+    category = models.CharField(max_length=100, blank=True, null=True)
+    prerequisites = models.TextField(blank=True, null=True)
+    
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):

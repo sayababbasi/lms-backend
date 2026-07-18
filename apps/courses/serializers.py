@@ -75,7 +75,7 @@ class CourseSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Course
-        fields = ['id', 'title', 'code', 'description', 'thumbnail', 'teacher', 'teachers', 'teacher_id', 'teacher_ids', 'students', 'student_ids', 'created_at', 'modules']
+        fields = ['id', 'title', 'code', 'description', 'thumbnail', 'teacher', 'teachers', 'teacher_id', 'teacher_ids', 'students', 'student_ids', 'created_at', 'modules', 'credit_hours', 'passing_percentage', 'status', 'semester', 'category', 'prerequisites']
 
 class CourseDetailSerializer(CourseSerializer):
     """
@@ -94,7 +94,7 @@ class CourseListSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Course
-        fields = ['id', 'title', 'code', 'teacher', 'teacher_id', 'teacher_ids', 'created_at', 'thumbnail', 'description', 'students_count']
+        fields = ['id', 'title', 'code', 'teacher', 'teacher_id', 'teacher_ids', 'created_at', 'thumbnail', 'description', 'students_count', 'credit_hours', 'status', 'semester', 'category']
 
     def get_students_count(self, obj):
         return obj.students.count()
