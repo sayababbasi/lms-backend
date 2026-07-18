@@ -1,4 +1,5 @@
 import logging
+import os
 from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
 from django.utils.html import strip_tags
@@ -30,20 +31,42 @@ class EmailService:
             # 1. Render HTML content
             html_content = render_to_string(template_name, context)
             
-            # 2. Generate plain-text fallback
-            text_content = strip_tags(html_content)
-            
-            # 3. Create Email message
-            msg = EmailMultiAlternatives(
-                subject=subject,
-                body=text_content,
-                from_email=settings.DEFAULT_FROM_EMAIL,
-                to=recipient_list
-            )
-            msg.attach_alternative(html_content, "text/html")
-            
-            # 4. Send email
-            msg.send(fail_silently=False)
+            # 2. Use Brevo HTTP API to bypass Render SMTP port blocking
+            brevo_api_key = os.getenv("BREVO_API_KEY")
+            if brevo_api_key:
+                import requests
+                headers = {
+                    "accept": "application/json",
+                    "api-key": brevo_api_key,
+                    "content-type": "application/json"
+                }
+                payload = {
+                    "sender": {
+                        "name": "Revotic AI Pvt. Ltd.",
+                        "email": "contact@revoticai.com"
+                    },
+                    "to": [
+                        {"email": recipient} for recipient in recipient_list
+                    ],
+                    "subject": subject,
+                    "htmlContent": html_content
+                }
+                response = requests.post("https://api.brevo.com/v3/smtp/email", json=payload, headers=headers)
+                if response.status_code in [200, 201, 202]:
+                    logger.info(f"Brevo HTTP API sent email successfully to {recipient_list}")
+                else:
+                    raise Exception(f"Brevo HTTP API error {response.status_code}: {response.text}")
+            else:
+                # Fallback to standard SMTP
+                text_content = strip_tags(html_content)
+                msg = EmailMultiAlternatives(
+                    subject=subject,
+                    body=text_content,
+                    from_email=settings.DEFAULT_FROM_EMAIL,
+                    to=recipient_list
+                )
+                msg.attach_alternative(html_content, "text/html")
+                msg.send(fail_silently=False)
             
             if email_log:
                 from django.utils import timezone
