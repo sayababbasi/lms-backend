@@ -539,3 +539,21 @@ class ChangePasswordView(APIView):
         AuditLogService.log_action(user=user, admin=None, action="Changed Own Password", ip_address=request.META.get('REMOTE_ADDR'))
         
         return Response({"message": "Password changed successfully."})
+
+class ContactMessageView(APIView):
+    permission_classes = [permissions.AllowAny]
+
+    def post(self, request):
+        name = request.data.get('name')
+        email = request.data.get('email')
+        subject = request.data.get('subject')
+        message = request.data.get('message')
+
+        if not name or not email or not subject or not message:
+            return Response({'error': 'All fields are required.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            EmailService.send_contact_form_email(name, email, subject, message)
+            return Response({'message': 'Message sent successfully.'}, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

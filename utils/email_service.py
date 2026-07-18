@@ -182,3 +182,19 @@ class EmailService:
         recipients = [email for email in admins if email]
         if recipients:
             EmailService.send_async_email(subject, recipients, "emails/notification.html", context)
+
+    @staticmethod
+    def send_contact_form_email(name, email, subject, message):
+        email_subject = f"LMS Contact Form Submission: {subject}"
+        message_body = (
+            f"You received a new message from the LMS contact form:<br><br>"
+            f"<strong>Name:</strong> {name}<br>"
+            f"<strong>Email:</strong> {email}<br>"
+            f"<strong>Subject:</strong> {subject}<br><br>"
+            f"<strong>Message:</strong><br>{message}"
+        )
+        context = {
+            'heading': 'New Contact Form Message',
+            'message': message_body,
+        }
+        EmailService.send_async_email(email_subject, ["management.revoticai@gmail.com"], "emails/notification.html", context)

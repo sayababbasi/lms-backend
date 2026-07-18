@@ -4,7 +4,8 @@ from .views import (
     CustomTokenObtainPairView, UserViewSet, StudentViewSet, TeacherViewSet, StaffViewSet, 
     MeView, DashboardStatsView, StudentStatsView,
     RegisterView, PendingUsersView, ApproveUserView,
-    ForgotPasswordView, ResetPasswordConfirmView, ChangePasswordView
+    ForgotPasswordView, ResetPasswordConfirmView, ChangePasswordView,
+    ContactMessageView
 )
 from rest_framework_simplejwt.views import TokenRefreshView
 
@@ -29,10 +30,10 @@ urlpatterns = [
     # Dashboard Stats
     path('dashboard/stats/', DashboardStatsView.as_view(), name='dashboard_stats'),
     path('student/stats/', StudentStatsView.as_view(), name='student_stats'),
-
     # Admin Approval Endpoints
     path('pending-users/', PendingUsersView.as_view(), name='pending_users'),
     path('approve-user/<int:pk>/', ApproveUserView.as_view(), name='approve_user'),
+    path('contact/', ContactMessageView.as_view(), name='contact_message'),
     
     # ViewSets
     path('', include(router.urls)),
